@@ -74,7 +74,7 @@ public with sharing class MetadataTriggerHandler extends TriggerHandler {
             return;
         }
 
-        addToLoopCount();
+        addToInvocationCount();
 
         /**
          * End standard validation

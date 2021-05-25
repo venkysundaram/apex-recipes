@@ -6,7 +6,7 @@
  */
 public virtual class TriggerHandler {
     // static map of handlername, times run() was invoked
-    private static Map<String, LoopCount> loopCountMap;
+    private static Map<String, TriggerInvocationCount> TriggerInvocationCountMap;
     private static Set<String> bypassedHandlers;
 
     // the current context of the trigger, overridable in tests
@@ -19,7 +19,7 @@ public virtual class TriggerHandler {
 
     // static initialization
     static {
-        loopCountMap = new Map<String, LoopCount>();
+        TriggerInvocationCountMap = new Map<String, TriggerInvocationCount>();
         bypassedHandlers = new Set<String>();
     }
     /**
@@ -43,12 +43,13 @@ public virtual class TriggerHandler {
      * @example
      * AccountTriggerHandler.run();
      */
+
     public virtual void run() {
         if (!validateRun()) {
             return;
         }
 
-        addToLoopCount();
+        addToInvocationCount();
 
         // dispatch to the correct handler method
         switch on context {
@@ -74,6 +75,8 @@ public virtual class TriggerHandler {
                 this.afterUndelete();
             }
         }
+
+        removeFromInvocationCount();
     }
 
     /**
@@ -84,25 +87,31 @@ public virtual class TriggerHandler {
      * to allow the trigger to run.
      * @example
      * In the context of a TriggerHandler class,
-     * this.setMaxLoopCount(5);
+     * this.setMaxInvocationCount(5);
      */
-    public void setMaxLoopCount(Integer max) {
+    public void setMaxInvocationCount(Integer max) {
         String handlerName = getHandlerName();
-        if (!TriggerHandler.loopCountMap.containsKey(handlerName)) {
-            TriggerHandler.loopCountMap.put(handlerName, new LoopCount(max));
+        if (
+            !TriggerHandler.TriggerInvocationCountMap.containsKey(handlerName)
+        ) {
+            TriggerHandler.TriggerInvocationCountMap.put(
+                handlerName,
+                new TriggerInvocationCount(max)
+            );
         } else {
-            TriggerHandler.loopCountMap.get(handlerName).setMax(max);
+            TriggerHandler.TriggerInvocationCountMap.get(handlerName)
+                .setMax(max);
         }
     }
 
     /**
-     * @description Allows developers to turn off the max loop count
+     * @description Allows developers to turn off the max invocation count
      * @example
      * In the context of a TriggerHandler class,
-     * this.clearMaxLoopCount();
+     * this.clearMaxInvocationCount();
      */
-    public void clearMaxLoopCount() {
-        this.setMaxLoopCount(-1);
+    public void clearMaxInvocationCount() {
+        this.setMaxInvocationCount(-1);
     }
 
     /**
@@ -231,24 +240,37 @@ public virtual class TriggerHandler {
     }
 
     /**
-     * @description increment the loop count
-     * @exception   Throws loop count exception if the max loop count is reached
+     * @description increment the invocation count
+     * @exception   Throws invocation count exception if the max invocation count is reached
      */
     @testVisible
-    protected void addToLoopCount() {
+    protected void addToInvocationCount() {
         String handlerName = getHandlerName();
-        if (TriggerHandler.loopCountMap.containsKey(handlerName)) {
-            Boolean exceeded = TriggerHandler.loopCountMap.get(handlerName)
+        if (TriggerHandler.TriggerInvocationCountMap.containsKey(handlerName)) {
+            Boolean exceeded = TriggerHandler.TriggerInvocationCountMap.get(
+                    handlerName
+                )
                 .increment();
             if (exceeded) {
-                Integer max = TriggerHandler.loopCountMap.get(handlerName).max;
+                Integer max = TriggerHandler.TriggerInvocationCountMap.get(
+                        handlerName
+                    )
+                    .max;
                 throw new TriggerHandlerException(
-                    'Maximum loop count of ' +
+                    'Maximum invocation count of ' +
                     String.valueOf(max) +
                     ' reached in ' +
                     handlerName
                 );
             }
+        }
+    }
+
+    protected void removeFromInvocationCount() {
+        String handlerName = getHandlerName();
+        if (TriggerHandler.TriggerInvocationCountMap.containsKey(handlerName)) {
+            TriggerHandler.TriggerInvocationCountMap.get(handlerName)
+                .decrement();
         }
     }
 
@@ -347,26 +369,26 @@ public virtual class TriggerHandler {
      ***************************************/
 
     /**
-     * @description inner class for managing the loop count per handler
+     * @description inner class for managing the invocation count per handler
      */
     @testVisible
-    private class LoopCount {
+    private class TriggerInvocationCount {
         private Integer max;
         private Integer count;
 
         /**
-         * @description Loop counter method with default of 5.
+         * @description invocation counter method with default of 5.
          */
-        public LoopCount() {
+        public TriggerInvocationCount() {
             this.max = 5;
             this.count = 0;
         }
 
         /**
-         * @description Sets loop count based on the param.
-         * @param max   Maximum number of loops to allow.
+         * @description Sets invocation count based on the param.
+         * @param max   Maximum number of infocation to allow.
          */
-        public LoopCount(Integer max) {
+        public TriggerInvocationCount(Integer max) {
             this.max = max;
             this.count = 0;
         }
@@ -382,8 +404,13 @@ public virtual class TriggerHandler {
             return this.exceeded();
         }
 
+        public Boolean decrement() {
+            this.count--;
+            return this.exceeded();
+        }
+
         /**
-         * @description Determines if this we're about to exceed the loop count.
+         * @description Determines if this we're about to exceed the infocation count.
          * @return     `Boolean` true if less than 0 or more than max.
          */
         public Boolean exceeded() {
@@ -397,23 +424,23 @@ public virtual class TriggerHandler {
         }
 
         /**
-         * @description Returns the max loop count.
-         * @return     `Integer` max loop count.
+         * @description Returns the max invocation count.
+         * @return     `Integer` max invocation count.
          */
         public Integer getMax() {
             return this.max;
         }
 
         /**
-         * @description Returns the current loop count.
-         * @return     `Integer` current loop count.
+         * @description Returns the current invocation count.
+         * @return     `Integer` current invocation count.
          */
         public Integer getCount() {
             return this.count;
         }
 
         /**
-         * @description Sets the max loop size
+         * @description Sets the max invocation size
          * @param max   The integer to set max to.
          */
         public void setMax(Integer max) {

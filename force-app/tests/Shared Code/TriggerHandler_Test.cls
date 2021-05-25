@@ -195,7 +195,7 @@ private class TriggerHandler_Test {
         beforeInsertMode();
 
         // set the max loops to 2
-        handler.setMaxLoopCount(2);
+        handler.setMaxInvocationCount(2);
 
         // run the handler twice
         handler.run();
@@ -232,7 +232,7 @@ private class TriggerHandler_Test {
         resetTest();
 
         // now clear the loop count
-        handler.clearMaxLoopCount();
+        handler.clearMaxInvocationCount();
 
         try {
             // re-run the handler. We shouldn't throw now.
@@ -260,7 +260,7 @@ private class TriggerHandler_Test {
 
     @isTest
     static void testLoopCountClass() {
-        TriggerHandler.LoopCount lc = new TriggerHandler.LoopCount();
+        TriggerHandler.TriggerInvocationCount lc = new TriggerHandler.TriggerInvocationCount();
         System.assertEquals(5, lc.getMax(), 'Max should be five on init');
         System.assertEquals(0, lc.getCount(), 'Count should be zero on init');
 

@@ -30,6 +30,25 @@ public with sharing class AccountTriggerHandler extends TriggerHandler {
         this.triggerMapOld = (Map<Id, Account>) Trigger.oldMap;
     }
 
+    // TODO: write proper comment
+    private List<Account> filterOutUnChangedRecords() {
+        List<Account> changed = new List<Account>();
+        for (Id recordId : this.triggerMapOld.keyset()) {
+            if (
+                // the clone(false,false,false) is a handy trick to
+                // compare objects without their audit fields breaking the
+                // the comparison
+                this.triggerMapOld.get(recordId).clone(false, false, false) ==
+                this.triggerMapNew.get(recordId).clone(false, false, false)
+            ) {
+                continue;
+            } else {
+                changed.add(this.triggerMapNew.get(recordId));
+            }
+        }
+        return changed;
+    }
+
     // Insert Contexts
 
     /**
