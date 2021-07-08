@@ -42,10 +42,7 @@ public with sharing class SecretsVaultCustomMetadata implements SecretsStorageSe
             );
         }
         String encryptedValue = encryptData(keyName, itemName, clearText);
-        this.serializedSecret = serializeSecret(
-            keyName,
-            encryptedValue
-        );
+        this.serializedSecret = serializeSecret(keyName, encryptedValue);
         this.storageBase.createAndDispatchMetadataRecordCreation(
             itemName,
             this.serializedSecret
@@ -106,7 +103,7 @@ public with sharing class SecretsVaultCustomMetadata implements SecretsStorageSe
     }
 
     /**
-     * @description      Makes a callout to Hashicorp's Vault transit encryption service to 
+     * @description      Makes a callout to Hashicorp's Vault transit encryption service to
      * decrypt the secret data and returns the clear text.
      * @param keyName    Key to use
      * @param itemName   Secret to fetch
@@ -165,7 +162,7 @@ public with sharing class SecretsVaultCustomMetadata implements SecretsStorageSe
      * @param encryptedValue        Encoded and encrypted blob of the clear text
      * @return                      `String`
      */
-    private string serializeSecret(String keyName, string encryptedValue ) {
+    private string serializeSecret(String keyName, string encryptedValue) {
         return keyName + '~' + encryptedValue;
     }
 }

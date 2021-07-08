@@ -6,15 +6,18 @@
 @suppressWarnings('PMD.FieldNamingConventions')
 public with sharing class AWSSecretDTO {
     public String ARN;
-	public Double CreatedDate;
-	public String Name;
-	public String SecretString;
-	public String VersionId;
-	public List<String> VersionStages;
+    public Double CreatedDate;
+    public String Name;
+    public String SecretString;
+    public String VersionId;
+    public List<String> VersionStages;
     public String StringValue;
 
     public static AWSSecretDTO parse(String json) {
-        AWSSecretDTO ret = (AWSSecretDTO) System.JSON.deserialize(json, AWSSecretDTO.class);
+        AWSSecretDTO ret = (AWSSecretDTO) System.JSON.deserialize(
+            json,
+            AWSSecretDTO.class
+        );
         ret.parseSecret();
         return ret;
     }

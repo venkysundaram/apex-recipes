@@ -20,6 +20,8 @@ Constructor requiring injected keyService
 
 ### `keyService` → `SecretsKeyStorageService`
 
+### `serializedSecret` → `String`
+
 ### `storageBase` → `SecretsCustomMetadataStorageBase`
 
 ---
@@ -45,7 +47,7 @@ Boolean
 
 ### `decryptData(String keyName,String itemName,String cipherText)` → `String`
 
-Makes a callout to Hashicorp's Vault service and retrieves the secret data from there.
+Makes a callout to Hashicorp's Vault transit encryption service to decrypt the secret data and returns the clear text.
 
 #### Parameters
 |Param|Description|
@@ -66,7 +68,7 @@ String
 
 ### `encryptData(String keyName,String itemName,String clearText)` → `String`
 
-Encrypts a clear text String and stores it in Hashicorp's Vault. Note this relies on a named credential being setup.
+Uses Hasicorp Vault transit encryption to encrypt a clear text String and return the encrypted value. Note this relies on a named credential being setup.
 
 #### Parameters
 |Param|Description|
@@ -100,6 +102,26 @@ SecretsData
 **Description**
 
 `SecretsData`
+
+### `serializeSecret(String keyName, string encryptedValue)` → `string`
+
+Represent the secret value using  the required format of: <ENCRYPTION KEY NAME>~<ENCRYPTED VALUE>
+
+#### Parameters
+|Param|Description|
+|-----|-----------|
+|`keyName` |                Key name to use |
+|`encryptedValue` |         Encoded and encrypted blob of the clear text |
+
+#### Return
+
+**Type**
+
+string
+
+**Description**
+
+`String`
 
 ### `store(String keyName, String itemName, String clearText)` → `Boolean`
 

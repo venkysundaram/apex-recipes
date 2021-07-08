@@ -67,22 +67,16 @@ public with sharing class SecretsKeyServiceAWSSecretManager implements SecretsKe
         req.setMethod('POST');
         req.setHeader('X-Amz-Target', 'secretsmanager.GetSecretValue');
         req.setHeader('Content-Type', 'application/x-amz-json-1.1');
-        req.setBody(
-            '{"SecretId": "' +
-            keyName +
-            '" }' 
-        );
+        req.setBody('{"SecretId": "' + keyName + '" }');
         Http http = new Http();
         HTTPResponse res = http.send(req);
-        if(res.getStatusCode() == 200) {
+        if (res.getStatusCode() == 200) {
             AWSSecretDTO data = AWSSecretDTO.parse(res.getBody());
             Secrets__c work = new Secrets__c();
             work.Name = keyName;
-            work.Private_Key__c =  data.StringValue;
+            work.Private_Key__c = data.StringValue;
             ret.add(work);
         }
         return ret;
     }
-
-
 }
