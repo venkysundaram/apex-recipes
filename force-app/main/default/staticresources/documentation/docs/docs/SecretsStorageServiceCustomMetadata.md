@@ -57,7 +57,7 @@ enum of allowed hmac algorithms.
 ## Methods
 ### `constantTimeCompare(String first, String second)` → `Boolean`
 
-An approximate constant time comparison algorithm
+An approximate constant time comparison algorithm This is an intentional de-optimization to prevent timing attacks.
 
 #### Parameters
 |Param|Description|

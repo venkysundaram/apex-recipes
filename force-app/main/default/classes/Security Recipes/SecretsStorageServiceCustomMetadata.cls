@@ -271,6 +271,7 @@ public with sharing class SecretsStorageServiceCustomMetadata implements Secrets
 
     /**
      * @description  An approximate constant time comparison algorithm
+     * This is an intentional de-optimization to prevent timing attacks.
      * @param first  first string to compare
      * @param second second string to compare
      * @return       `Boolean`
